@@ -1,0 +1,29 @@
+Categoria,Tipo,Turma/Semana,Valor
+Segurança,Relatos Abertos,5,10
+Segurança,Relatos Concluídos,6,15
+Segurança,Acidentes SPT,9,5
+Segurança,Acidentes CPT,12,8
+Qualidade,Sucata,turma A,20
+Qualidade,Sucata,turma B,15
+Qualidade,Sucata,turma C,20
+Qualidade,Sucata,turma D,15
+Produção,Produção,turma A,120
+Produção,Produção,turma B,135
+Produção,Produção,turma C,150
+Produção,Produção,turma D,188
+Pessoas,Horas Extras,turma A,120
+Pessoas,Horas Extras,turma B,135
+Pessoas,Horas Extras,turma C,150
+Pessoas,Horas Extras,turma D,188
+Pessoas,Treinamento Obrigatório,turma A,10
+Pessoas,Treinamento Obrigatório,turma B,15
+Pessoas,Treinamento Obrigatório,turma C,12
+Pessoas,Treinamento Obrigatório,turma D,8
+Pessoas,Treinamento Eletivo,turma A,5
+Pessoas,Treinamento Eletivo,turma B,7
+Pessoas,Treinamento Eletivo,turma C,4
+Pessoas,Treinamento Eletivo,turma D,6
+Interrupção,Interrupção,A,10
+Interrupção,Interrupção,B,15
+Interrupção,Interrupção,C,8
+Interrupção,Interrupção,D,12
