@@ -123,7 +123,86 @@ body {
   margin-bottom: 5px;
   display: block;
 }
+.dashboard-container {
+  background-color: #F5F5F5;
+  font-family: 'Arial', sans-serif;
+}
+.dashboard-container {
+  max-width: 100%;
+  padding: 10px;
+  zoom: 0.85; /* Reduz um pouco o tamanho geral para caber na TV */
+}
 
+.dashboard-chart {
+  height: 280px; /* Altura um pouco menor para caber na TV */
+  margin-bottom: 15px;
+}
+
+/* Ajuste o cabeçalho para caber melhor */
+#dashboard-title {
+  font-size: 24px;
+}
+
+/* Ajuste os cartões KPI */
+.kpi-card {
+  padding: 10px;
+}
+
+.kpi-value {
+  font-size: 20px;
+}
+
+.dashboard-card {
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border: none;
+}
+
+.dashboard-card .card-header {
+  background-color: #1A5276;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.small-chart {
+  height: 250px;
+  margin-bottom: 0;
+}
+
+.custo-card {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  margin-top: 10px;
+}
+
+.custo-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.custo-label {
+  color: #2C3E50;
+  font-size: 12px;
+  width: 50%;
+}
+
+.custo-value {
+  color: #1A5276;
+  font-size: 16px;
+  font-weight: bold;
+  width: 50%;
+}
+
+/* Maintain existing responsive design */
+@media (max-width: 768px) {
+  .small-chart {
+    height: 200px;
+  }
+}
 /* Dashboard Cards */
 .dashboard-card {
   border-radius: 10px;
