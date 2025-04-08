@@ -1,7 +1,3 @@
-"""
-Dashboard de Gestão de Laminação a Frio - Versão Simplificada
-"""
-
 from collections import defaultdict
 import dash
 from dash import dcc, html, Input, Output, callback
@@ -21,16 +17,6 @@ app = dash.Dash(
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1.0"}],
     external_stylesheets=[dbc.themes.BOOTSTRAP]
 )
-
-# Configurações para TV 55" com scroll
-app.layout = html.Div(style={
-    'width': '1920px',
-    'min-height': '1080px',
-    'margin': '0 auto',
-    'padding': '10px',
-    'overflow-y': 'auto',
-    'overflow-x': 'hidden'
-})
 
 DATA_FILE = 'dashboard_data.json'
 
@@ -161,8 +147,27 @@ def calculate_kpis(data):
     
     return kpis
 
+def calculate_costs(data):
+    costs = defaultdict(float)
+    
+    if isinstance(data, list):
+        data = pd.DataFrame(data)
+    
+    if data.empty:
+        return costs
+    
+    try:
+        costs['custo_mensal'] = data[data['Tipo'] == 'Custo Mensal']['Valor'].iloc[-1] if not data[data['Tipo'] == 'Custo Mensal'].empty else 0
+        costs['meta'] = data[data['Tipo'] == 'Meta']['Valor'].iloc[-1] if not data[data['Tipo'] == 'Meta'].empty else 0
+        costs['custo_por_ton'] = costs['custo_mensal'] / calculate_kpis(data).get('producao_atual', 1) if calculate_kpis(data).get('producao_atual', 0) > 0 else 0
+    except:
+        pass
+    
+    return costs
+
 def generate_graphs(data):
     kpis = calculate_kpis(data)
+    costs = calculate_costs(data)
     
     if isinstance(data, list):
         data = pd.DataFrame(data)
@@ -280,7 +285,7 @@ def generate_graphs(data):
             textposition='auto',
         ))
         
-        target = producao_data['Valor'].mean() * 1.1
+        target = costs.get('meta', producao_data['Valor'].mean() * 1.1)
         fig_producao.add_trace(go.Scatter(
             x=producao_data['Turma'],
             y=[target] * len(producao_data),
@@ -395,7 +400,7 @@ def generate_graphs(data):
     )
     
     return (fig_relatos, fig_acidentes, fig_sucata, fig_retrabalho, fig_producao,
-            fig_horas_extras, fig_treinamentos, fig_faltas, fig_interrupcao)
+            fig_horas_extras, fig_treinamentos, fig_faltas, fig_interrupcao, costs)
 
 def create_kpi_card(title, value, indicator=None, prefix="", suffix=""):
     indicator_color = colors['white']
@@ -413,7 +418,7 @@ def create_kpi_card(title, value, indicator=None, prefix="", suffix=""):
             dbc.CardBody(
                 [
                     html.H4(title, className="card-title"),
-                    html.Div([
+                    html.Div([ 
                         html.Span(f"{prefix}{value}{suffix}", className="kpi-value"),
                         html.Span(indicator_icon, className="indicator", style={"color": indicator_color})
                     ], className="kpi-container")
@@ -422,6 +427,36 @@ def create_kpi_card(title, value, indicator=None, prefix="", suffix=""):
         ],
         className="kpi-card"
     )
+
+def create_cost_card(title, value, icon_class, color_class):
+    return html.Div([
+        html.Div([
+            html.I(className=f"fas {icon_class} fa-2x", style={"margin-right": "15px", "color": color_class}),
+            html.Div([
+                html.H5(title, style={
+                    "margin-bottom": "0", 
+                    "font-weight": "bold",
+                    "color": "#6c757d",
+                    "font-size": "14px",
+                    "text-transform": "uppercase"
+                }),
+                html.H3(f"R$ {value:,.2f}", style={
+                    "margin-top": "5px", 
+                    "font-weight": "bold",
+                    "color": colors['text'],
+                    "font-size": "24px"
+                })
+            ])
+        ], style={
+            "display": "flex",
+            "align-items": "center",
+            "padding": "20px",
+            "background-color": "#f8f9fa",
+            "border-radius": "8px",
+            "margin-bottom": "15px",
+            "border-left": f"5px solid {color_class}"
+        })
+    ])
 
 current_date = datetime.now()
 current_month = current_date.month
@@ -470,15 +505,13 @@ app.layout = dbc.Container([
                         id='relatos-chart',
                         figure=generate_graphs(initial_data)[0],
                         config=chart_config,
-                        className="dashboard-chart",
-                        style={'height': '400px'}
+                        className="dashboard-chart"
                     ),
                     dcc.Graph(
                         id='acidentes-chart',
                         figure=generate_graphs(initial_data)[1],
                         config=chart_config,
-                        className="dashboard-chart",
-                        style={'height': '400px'}
+                        className="dashboard-chart"
                     )
                 ])
             ], className="dashboard-card")
@@ -492,15 +525,13 @@ app.layout = dbc.Container([
                         id='sucata-chart',
                         figure=generate_graphs(initial_data)[2],
                         config=chart_config,
-                        className="dashboard-chart",
-                        style={'height': '400px'}
+                        className="dashboard-chart"
                     ),
                     dcc.Graph(
                         id='retrabalho-chart',
                         figure=generate_graphs(initial_data)[3],
                         config=chart_config,
-                        className="dashboard-chart",
-                        style={'height': '400px'}
+                        className="dashboard-chart"
                     )
                 ])
             ], className="dashboard-card")
@@ -514,14 +545,44 @@ app.layout = dbc.Container([
                         id='producao-chart',
                         figure=generate_graphs(initial_data)[4],
                         config=chart_config,
-                        className="dashboard-chart",
-                        style={'height': '400px'}
-                    )
+                        className="dashboard-chart"
+                    ),
+                    dbc.Card([
+                        dbc.CardBody([
+                            create_cost_card("CUSTO MENSAL", calculate_costs(initial_data).get('custo_mensal', 0), "fa-money-bill-wave", colors['primary']),
+                            create_cost_card("META", calculate_costs(initial_data).get('meta', 0), "fa-bullseye", colors['positive']),
+                            html.Div([
+                                html.Div([
+                                    html.I(className="fas fa-weight fa-2x", style={"margin-right": "15px", "color": "#6c757d"}),
+                                    html.Div([
+                                        html.H5("CUSTO POR TON", style={
+                                            "margin-bottom": "0", 
+                                            "font-weight": "bold",
+                                            "color": "#6c757d",
+                                            "font-size": "14px",
+                                            "text-transform": "uppercase"
+                                        }),
+                                        html.H3(f"R$ {calculate_costs(initial_data).get('custo_por_ton', 0):,.2f}", style={
+                                            "margin-top": "5px", 
+                                            "font-weight": "bold",
+                                            "color": colors['text'],
+                                            "font-size": "24px"
+                                        })
+                                    ])
+                                ], style={
+                                    "display": "flex",
+                                    "align-items": "center",
+                                    "padding": "20px",
+                                    "background-color": "#f8f9fa",
+                                    "border-radius": "8px"
+                                })
+                            ], style={"margin-top": "10px"})
+                        ])
+                    ], className="custo-card")
                 ])
             ], className="dashboard-card")
         ], lg=4, md=12, sm=12),
-    ], className="mb-4"),
-    
+    ], className="mb-2"),
     dbc.Row([
         dbc.Col([
             dbc.Card([
@@ -533,8 +594,7 @@ app.layout = dbc.Container([
                                 id='horas-extras-chart',
                                 figure=generate_graphs(initial_data)[5],
                                 config=chart_config,
-                                className="dashboard-chart",
-                                style={'height': '300px'}
+                                className="dashboard-chart"
                             )
                         ], md=4, sm=12),
                         dbc.Col([
@@ -542,8 +602,7 @@ app.layout = dbc.Container([
                                 id='treinamentos-chart',
                                 figure=generate_graphs(initial_data)[6],
                                 config=chart_config,
-                                className="dashboard-chart",
-                                style={'height': '300px'}
+                                className="dashboard-chart"
                             )
                         ], md=4, sm=12),
                         dbc.Col([
@@ -551,8 +610,7 @@ app.layout = dbc.Container([
                                 id='faltas-chart',
                                 figure=generate_graphs(initial_data)[7],
                                 config=chart_config,
-                                className="dashboard-chart",
-                                style={'height': '300px'}
+                                className="dashboard-chart"
                             )
                         ], md=4, sm=12)
                     ])
@@ -568,13 +626,12 @@ app.layout = dbc.Container([
                         id='interrupcao-chart',
                         figure=generate_graphs(initial_data)[8],
                         config=chart_config,
-                        className="dashboard-chart",
-                        style={'height': '400px'}
+                        className="dashboard-chart"
                     )
                 ])
             ], className="dashboard-card")
         ], lg=4, md=12, sm=12),
-    ]),
+    ], className="mb-2"),
     
     dbc.Row([
         dbc.Col([
@@ -586,9 +643,7 @@ app.layout = dbc.Container([
         ], width=12)
     ])
 ], fluid=True, className="dashboard-container", style={
-    'width': '1920px',
-    'min-height': '1080px',
-    'overflow-y': 'auto',
+    'min-height': '100vh',
     'overflow-x': 'hidden',
     'margin': '0 auto',
     'padding': '10px'
@@ -598,6 +653,7 @@ app.layout = dbc.Container([
 def serve_form():
     return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'form.html')
 
+# Endpoint para adicionar dados do formulário
 @app.server.route('/api/add_data', methods=['POST'])
 def add_data():
     try:
@@ -623,7 +679,9 @@ def add_data():
             'Treinamento Obrigatório': new_data.get('Treinamento Obrigatório', 0),
             'Treinamento Eletivo': new_data.get('Treinamento Eletivo', 0),
             'Interrupção': new_data.get('Interrupção', 0),
-            'Faltas': new_data.get('Faltas', 0)
+            'Faltas': new_data.get('Faltas', 0),
+            'Custo Mensal': new_data.get('Custo Mensal', 0),
+            'Meta': new_data.get('Meta', 0)
         }
         
         for tipo, valor in indicators.items():
@@ -668,7 +726,7 @@ def update_all_charts(n_intervals):
     df = pd.DataFrame(data)
     
     (fig_relatos, fig_acidentes, fig_sucata, fig_retrabalho, fig_producao,
-     fig_horas_extras, fig_treinamentos, fig_faltas, fig_interrupcao) = generate_graphs(df)
+     fig_horas_extras, fig_treinamentos, fig_faltas, fig_interrupcao, costs) = generate_graphs(df)
     
     title = f"GESTÃO LAMINAÇÃO A FRIO (Atualizado: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')})"
     

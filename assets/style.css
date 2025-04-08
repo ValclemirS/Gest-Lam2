@@ -23,19 +23,21 @@ body {
 
 /* Dashboard Container */
 .dashboard-container {
-  max-width: 1800px;
+  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
-  padding: 15px;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 /* Dashboard Header */
 .dashboard-header {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .header-row {
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 #dashboard-title {
@@ -43,12 +45,12 @@ body {
   font-weight: bold;
   text-align: center;
   margin: 0;
-  font-size: 28px;
+  font-size: 2.5vw; /* Escala com a largura da tela */
 }
 
 .date-display {
   text-align: right;
-  font-size: 14px;
+  font-size: 1vw;
   color: var(--text-color);
   background-color: var(--background-color);
   padding: 5px 10px;
@@ -58,8 +60,8 @@ body {
 
 /* KPI Cards */
 .kpi-row {
-  margin-top: 15px;
-  margin-bottom: 15px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .kpi-card {
@@ -77,8 +79,8 @@ body {
 
 .kpi-card .card-title {
   color: var(--primary-color);
-  font-size: 16px;
-  margin-bottom: 10px;
+  font-size: 1.2vw;
+  margin-bottom: 8px;
   font-weight: bold;
 }
 
@@ -89,133 +91,66 @@ body {
 }
 
 .kpi-value {
-  font-size: 24px;
+  font-size: 2vw;
   font-weight: bold;
   color: var(--text-color);
   margin-right: 5px;
 }
 
 .indicator {
-  font-size: 18px;
+  font-size: 1.5vw;
   font-weight: bold;
   margin-left: 5px;
 }
 
-/* Filter Card */
-.filter-card {
-  border-radius: 10px;
-  box-shadow: var(--box-shadow);
-  margin-bottom: 20px;
-  background-color: white;
-  border: none;
-}
-
-.filter-card .card-title {
-  color: var(--primary-color);
-  font-size: 18px;
-  margin-bottom: 15px;
-  font-weight: bold;
-}
-
-.filter-card label {
-  color: var(--text-color);
-  font-weight: 500;
-  margin-bottom: 5px;
-  display: block;
-}
-.dashboard-container {
-  background-color: #F5F5F5;
-  font-family: 'Arial', sans-serif;
-}
-.dashboard-container {
-  max-width: 100%;
-  padding: 10px;
-  zoom: 0.85; /* Reduz um pouco o tamanho geral para caber na TV */
-}
-
-.dashboard-chart {
-  height: 280px; /* Altura um pouco menor para caber na TV */
-  margin-bottom: 15px;
-}
-
-/* Ajuste o cabeçalho para caber melhor */
-#dashboard-title {
-  font-size: 24px;
-}
-
-/* Ajuste os cartões KPI */
-.kpi-card {
-  padding: 10px;
-}
-
-.kpi-value {
-  font-size: 20px;
-}
-
-.dashboard-card {
-  margin-bottom: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  border: none;
-}
-
-.dashboard-card .card-header {
-  background-color: #1A5276;
-  color: white;
-  text-align: center;
-  padding: 10px;
-  font-weight: bold;
-}
-
-.small-chart {
-  height: 250px;
-  margin-bottom: 0;
-}
-
+/* Custo Card */
 .custo-card {
   background-color: white;
-  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
   margin-top: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .custo-container {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.custo-item {
+  display: flex;
   justify-content: space-between;
-  text-align: center;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
 }
 
 .custo-label {
-  color: #2C3E50;
-  font-size: 12px;
-  width: 50%;
+  font-weight: bold;
+  color: #1A5276;
+  font-size: 1.2vw;
 }
 
 .custo-value {
-  color: #1A5276;
-  font-size: 16px;
   font-weight: bold;
-  width: 50%;
+  color: #2C3E50;
+  font-size: 1.5vw;
 }
 
-/* Maintain existing responsive design */
-@media (max-width: 768px) {
-  .small-chart {
-    height: 200px;
-  }
-}
 /* Dashboard Cards */
 .dashboard-card {
   border-radius: 10px;
   overflow: hidden;
   box-shadow: var(--box-shadow);
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   border: none;
   height: 100%;
 }
 
 .dashboard-card .card-header {
   background-color: var(--primary-color);
-  padding: 15px;
+  padding: 10px;
   border-bottom: none;
 }
 
@@ -223,76 +158,110 @@ body {
   color: white;
   text-align: center;
   margin: 0;
-  font-size: 18px;
+  font-size: 1.5vw;
   font-weight: bold;
 }
 
 .dashboard-card .card-body {
-  padding: 15px;
+  padding: 10px;
   background-color: white;
 }
 
 /* Dashboard Charts */
 .dashboard-chart {
-  height: 300px;
-  margin-bottom: 20px;
-}
-
-/* Button Styling */
-.btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  transition: background-color var(--transition-speed);
-  width: 100%;
-  margin-top: 6px;
-}
-
-.btn-primary:hover {
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
+  height: 25vh; /* Altura relativa à altura da tela */
+  margin-bottom: 15px;
 }
 
 /* Footer */
 .footer {
-  margin-top: 20px;
-  padding: 15px;
+  margin-top: 15px;
   text-align: center;
-  border-top: 1px solid #ddd;
 }
 
 .footer-text {
+  font-size: 1vw;
   color: var(--text-color);
-  margin: 5px 0;
-  font-size: 12px;
 }
 
 /* Responsive adjustments */
-@media (max-width: 992px) {
-  .dashboard-chart {
-    height: 250px;
+@media (min-width: 3840px) { /* 4K TVs */
+  .dashboard-container {
+    padding: 20px;
   }
   
   #dashboard-title {
-    font-size: 22px;
+    font-size: 3rem;
+  }
+  
+  .dashboard-chart {
+    height: 30vh;
+  }
+  
+  .kpi-card .card-title {
+    font-size: 1.5rem;
+  }
+  
+  .kpi-value {
+    font-size: 2.5rem;
+  }
+  
+  .section-header {
+    font-size: 1.8rem;
+  }
+  
+  .date-display {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 1920px) {
+  .dashboard-chart {
+    height: 22vh;
+  }
+  
+  #dashboard-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .dashboard-chart {
+    height: 20vh;
+  }
+  
+  #dashboard-title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .dashboard-chart {
+    height: 25vh; /* Aumenta a altura em telas menores para melhor uso do espaço */
+  }
+  
+  #dashboard-title {
+    font-size: 1.5rem;
   }
 }
 
 @media (max-width: 768px) {
   .dashboard-chart {
-    height: 220px;
+    height: 30vh;
   }
   
   .kpi-value {
-    font-size: 20px;
+    font-size: 1.2rem;
   }
   
   .date-display {
     text-align: center;
     margin-top: 10px;
+    font-size: 0.9rem;
   }
   
   #dashboard-title {
-    font-size: 18px;
+    font-size: 1.2rem;
     margin: 10px 0;
   }
   
@@ -304,180 +273,22 @@ body {
 
 @media (max-width: 576px) {
   .dashboard-container {
-    padding: 10px 5px;
+    padding: 5px;
   }
   
   .dashboard-chart {
-    height: 200px;
+    height: 35vh;
   }
   
   .section-header {
-    font-size: 16px;
+    font-size: 0.9rem;
   }
   
   .kpi-card .card-title {
-    font-size: 14px;
+    font-size: 0.8rem;
   }
   
   .kpi-value {
-    font-size: 18px;
-  }
-}
-
-/* Animation effects */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.dashboard-card, .kpi-card, .filter-card {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-/* Dropdown styling */
-.Select-control {
-  border-radius: 5px;
-  border: 1px solid #ddd;
-}
-
-.Select-control:hover {
-  border-color: var(--accent-color);
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--secondary-color);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-color);
-}
-
-/* Graph legend styling */
-.legendtext {
-  font-family: 'Arial', sans-serif !important;
-  font-size: 10px !important;
-}
-
-/* Print-friendly styles */
-@media print {
-  .dashboard-container {
-    width: 100%;
-    max-width: 100%;
-  }
-  
-  .dashboard-card {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    box-shadow: none;
-    border: 1px solid #ddd;
-  }
-  
-  .dashboard-chart {
-    height: 200px;
-  }
-  
-  body {
-    background-color: white;
-  }
-  
-  .filter-card, .btn-primary {
-    display: none;
-  }
-}
-
-/* Tooltip styling */
-.tooltip {
-  position: relative;
-  display: inline-block;
-}
-
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 120px;
-  background-color: var(--primary-color);
-  color: white;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -60px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}
-
-/* Loading spinner */
-.loader {
-  border: 5px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 5px solid var(--primary-color);
-  width: 40px;
-  height: 40px;
-  animation: spin 2s linear infinite;
-  margin: 20px auto;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Table styling */
-.dash-table-container {
-  font-family: 'Arial', sans-serif;
-}
-
-.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th {
-  background-color: var(--primary-color);
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  padding: 10px;
-}
-
-.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td {
-  padding: 8px;
-  text-align: center;
-}
-
-.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-/* Additional responsiveness for mobile */
-@media (max-width: 480px) {
-  .dashboard-chart {
-    height: 180px;
-  }
-  
-  .kpi-card .card-title {
-    font-size: 12px;
-  }
-  
-  .kpi-value {
-    font-size: 16px;
-  }
-  
-  .dashboard-container {
-    padding: 5px;
+    font-size: 1rem;
   }
 }
