@@ -58,51 +58,6 @@ body {
   box-shadow: var(--box-shadow);
 }
 
-/* KPI Cards */
-.kpi-row {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.kpi-card {
-  border-radius: 10px;
-  box-shadow: var(--box-shadow);
-  transition: transform var(--transition-speed);
-  height: 100%;
-  border: none;
-  background-color: white;
-}
-
-.kpi-card:hover {
-  transform: translateY(-5px);
-}
-
-.kpi-card .card-title {
-  color: var(--primary-color);
-  font-size: 1.2vw;
-  margin-bottom: 8px;
-  font-weight: bold;
-}
-
-.kpi-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.kpi-value {
-  font-size: 2vw;
-  font-weight: bold;
-  color: var(--text-color);
-  margin-right: 5px;
-}
-
-.indicator {
-  font-size: 1.5vw;
-  font-weight: bold;
-  margin-left: 5px;
-}
-
 /* Custo Card */
 .custo-card {
   background-color: white;
@@ -198,14 +153,6 @@ body {
     height: 30vh;
   }
   
-  .kpi-card .card-title {
-    font-size: 1.5rem;
-  }
-  
-  .kpi-value {
-    font-size: 2.5rem;
-  }
-  
   .section-header {
     font-size: 1.8rem;
   }
@@ -250,10 +197,6 @@ body {
     height: 30vh;
   }
   
-  .kpi-value {
-    font-size: 1.2rem;
-  }
-  
   .date-display {
     text-align: center;
     margin-top: 10px;
@@ -282,13 +225,5 @@ body {
   
   .section-header {
     font-size: 0.9rem;
-  }
-  
-  .kpi-card .card-title {
-    font-size: 0.8rem;
-  }
-  
-  .kpi-value {
-    font-size: 1rem;
   }
 }

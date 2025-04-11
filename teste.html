@@ -1,0 +1,271 @@
+document.getElementById('next-scenario').style.display = 'none';
+            
+            // Iniciar temporizador
+            timeRemaining = 30;
+            document.getElementById('scenario-timer').textContent = timeRemaining;
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                document.getElementById('scenario-timer').textContent = timeRemaining;
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    checkScenarioAnswer(-1); // Tempo esgotado
+                }
+            }, 1000);
+        }
+        
+        function checkScenarioAnswer(selectedIndex) {
+            clearInterval(timerInterval);
+            
+            const scenarioData = safetyScenarios[currentScenario];
+            const feedback = document.getElementById('scenario-feedback');
+            
+            // Desabilitar todos os botões
+            const optionButtons = document.querySelectorAll('#scenario-options .quiz-option');
+            optionButtons.forEach(button => {
+                button.disabled = true;
+                
+                // Destacar resposta correta
+                if (parseInt(button.dataset.index) === scenarioData.correct) {
+                    button.style.borderColor = 'var(--success)';
+                    button.style.backgroundColor = '#e8f5e9';
+                }
+            });
+            
+            if (selectedIndex === scenarioData.correct) {
+                // Resposta correta
+                feedback.className = 'feedback correct';
+                feedback.textContent = `Excelente escolha! ${scenarioData.explanation}`;
+                scenarioPoints += 20;
+                document.getElementById('scenario-points').textContent = scenarioPoints;
+            } else {
+                // Resposta incorreta
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = selectedIndex === -1 
+                    ? `Tempo esgotado! A melhor ação seria: ${scenarioData.options[scenarioData.correct]}. ${scenarioData.explanation}`
+                    : `Não é a melhor escolha. A melhor ação seria: ${scenarioData.options[scenarioData.correct]}. ${scenarioData.explanation}`;
+            }
+            
+            // Mostrar botão para próximo cenário
+            document.getElementById('next-scenario').style.display = 'block';
+        }
+        
+        document.getElementById('next-scenario').addEventListener('click', () => {
+            currentScenario++;
+            loadScenario();
+        });
+        
+        function endSafetyScenarios() {
+            totalPoints += scenarioPoints;
+            showResults();
+        }
+        
+        // Exibir resultados finais
+        function showResults() {
+            changeScreen('result-screen');
+            
+            document.getElementById('final-score').textContent = totalPoints;
+            
+            // Determinar nível de consciência
+            let awarenessLevel;
+            if (totalPoints < 100) {
+                awarenessLevel = "Iniciante";
+            } else if (totalPoints < 200) {
+                awarenessLevel = "Consciente";
+            } else if (totalPoints < 300) {
+                awarenessLevel = "Avançado";
+            } else {
+                awarenessLevel = "Expert em Segurança";
+            }
+            
+            document.getElementById('awareness-level').textContent = awarenessLevel;
+            
+            // Atribuir distintivos
+            if (quizPoints >= 60) {
+                document.getElementById('hydration-badge').classList.add('earned');
+            }
+            
+            if (scenarioPoints >= 60) {
+                document.getElementById('safety-badge').classList.add('earned');
+            }
+            
+            if (totalPoints >= 250) {
+                document.getElementById('expert-badge').classList.add('earned');
+            }
+            
+            // Adicionar pontos de aprendizado
+            const learningPoints = document.getElementById('learning-points');
+            learningPoints.innerHTML = `
+                <li>A hidratação adequada é fundamental para prevenir acidentes de trabalho</li>
+                <li>Deve-se beber água regularmente, sem esperar sentir sede</li>
+                <li>Em ambientes quentes ou trabalhos físicos, a necessidade de hidratação aumenta</li>
+                <li>A desidratação afeta a concentração e pode causar acidentes</li>
+                <li>A segurança no trabalho é responsabilidade individual e coletiva</li>
+            `;
+        }
+        
+        // Reiniciar jogo
+        document.getElementById('restart-button').addEventListener('click', () => {
+            totalPoints = 0;
+            document.getElementById('points').textContent = totalPoints;
+            changeScreen('start-screen');
+        });
+        
+        // Controles touch para dispositivos móveis
+        if ('ontouchstart' in window) {
+            gameScene.addEventListener('touchstart', handleTouch);
+            gameScene.addEventListener('touchmove', handleTouch);
+            
+            function handleTouch(e) {
+                if (currentScreen !== 'collection-game') return;
+                
+                e.preventDefault();
+                const touch = e.touches[0];
+                const sceneRect = gameScene.getBoundingClientRect();
+                const touchX = touch.clientX - sceneRect.left;
+                const sceneWidth = sceneRect.width;
+                
+                // Converter a posição do toque em porcentagem
+                playerPosition = (touchX / sceneWidth) * 100;
+                
+                // Limitar a posição
+                if (playerPosition < 5) playerPosition = 5;
+                if (playerPosition > 95) playerPosition = 95;
+                
+                player.style.left = `${playerPosition}%`;
+            }
+        }
+        
+        // Detectar dispositivos móveis e adicionar instruções
+        if ('ontouchstart' in window) {
+            document.querySelector('#collection-game .info-card').innerHTML = 
+                "<p>Toque e arraste na tela para mover o personagem.</p>" +
+                "<p>Colete garrafas de água para aumentar sua hidratação e evite os perigos!</p>";
+        }
+        
+        // Melhorar a experiência em diferentes dispositivos
+        function adjustLayoutForDevice() {
+            if (window.innerWidth < 600) {
+                // Ajustes para telas pequenas
+                document.querySelectorAll('.quiz-option').forEach(option => {
+                    option.style.padding = '0.8rem';
+                });
+                
+                document.querySelector('.scene').style.height = '200px';
+            }
+        }
+        
+        window.addEventListener('resize', adjustLayoutForDevice);
+        adjustLayoutForDevice();
+        
+        // Adicionar efeitos sonoros (comentado - necessitaria arquivos de áudio)
+        /*
+        const sounds = {
+            water: new Audio('water.mp3'),
+            hazard: new Audio('hazard.mp3'),
+            correct: new Audio('correct.mp3'),
+            incorrect: new Audio('incorrect.mp3')
+        };
+        */
+        
+        // Easter egg: código secreto para modo especial
+        let konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    activateEasterEgg();
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+        
+        function activateEasterEgg() {
+            // Modo arco-íris para o personagem
+            player.style.transition = 'all 0.2s';
+            let hue = 0;
+            
+            setInterval(() => {
+                hue = (hue + 5) % 360;
+                player.style.boxShadow = `0 0 15px 5px hsla(${hue}, 100%, 50%, 0.8)`;
+            }, 100);
+            
+            // Mensagem secreta
+            alert('Modo Especial Ativado: Você é um verdadeiro defensor da hidratação e segurança!');
+        }
+        
+        // Sistema de conquistas adicionais
+        const achievements = [
+            { id: 'fast-collector', name: 'Coletor Rápido', description: 'Colete 5 garrafas de água em menos de 10 segundos', earned: false },
+            { id: 'perfect-quiz', name: 'Mestre do Conhecimento', description: 'Acerte todas as perguntas do quiz', earned: false },
+            { id: 'safety-expert', name: 'Especialista em Segurança', description: 'Responda corretamente todos os cenários de segurança', earned: false }
+        ];
+        
+        function checkAchievements() {
+            // Esta função verificaria as conquistas e atualizaria a interface
+            // (Implementação simplificada para este exemplo)
+        }
+        
+        // Sistema de persistência de pontuação usando localStorage
+        function saveScore() {
+            if (typeof(Storage) !== "undefined") {
+                // Obter pontuações anteriores
+                let highScores = JSON.parse(localStorage.getItem('hydrationGameScores')) || [];
+                
+                // Adicionar pontuação atual
+                highScores.push({
+                    date: new Date().toLocaleDateString(),
+                    score: totalPoints,
+                    hydrationPoints: quizPoints,
+                    safetyPoints: scenarioPoints
+                });
+                
+                // Ordenar e manter apenas as 5 melhores
+                highScores.sort((a, b) => b.score - a.score);
+                highScores = highScores.slice(0, 5);
+                
+                // Salvar de volta ao localStorage
+                localStorage.setItem('hydrationGameScores', JSON.stringify(highScores));
+            }
+        }
+        
+        // Carregar pontuações ao final do jogo
+        function loadHighScores() {
+            if (typeof(Storage) !== "undefined") {
+                const highScores = JSON.parse(localStorage.getItem('hydrationGameScores')) || [];
+                
+                if (highScores.length > 0) {
+                    const scoreList = document.createElement('div');
+                    scoreList.innerHTML = '<h3>Suas Melhores Pontuações:</h3><ul>';
+                    
+                    highScores.forEach(score => {
+                        scoreList.innerHTML += `<li>${score.date}: ${score.score} pontos</li>`;
+                    });
+                    
+                    scoreList.innerHTML += '</ul>';
+                    document.querySelector('.result-container').appendChild(scoreList);
+                }
+            }
+        }
+        
+        // Adicionar esta chamada na função showResults
+        function enhancedResults() {
+            showResults();
+            saveScore();
+            loadHighScores();
+        }
+        
+        // Substituir a chamada para showResults em endSafetyScenarios:
+        function endSafetyScenarios() {
+            totalPoints += scenarioPoints;
+            enhancedResults();
+        }
+    </script>
+</body>
+</html>

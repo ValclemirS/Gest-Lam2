@@ -159,7 +159,6 @@ def calculate_costs(data):
     try:
         costs['custo_mensal'] = data[data['Tipo'] == 'Custo Mensal']['Valor'].iloc[-1] if not data[data['Tipo'] == 'Custo Mensal'].empty else 0
         costs['meta'] = data[data['Tipo'] == 'Meta']['Valor'].iloc[-1] if not data[data['Tipo'] == 'Meta'].empty else 0
-        costs['custo_por_ton'] = costs['custo_mensal'] / calculate_kpis(data).get('producao_atual', 1) if calculate_kpis(data).get('producao_atual', 0) > 0 else 0
     except:
         pass
     
@@ -167,61 +166,78 @@ def calculate_costs(data):
 
 def generate_graphs(data):
     kpis = calculate_kpis(data)
-    costs = calculate_costs(data)
     
     if isinstance(data, list):
         data = pd.DataFrame(data)
     
-    # 1. Gráfico de Relatos (Barras verticais)
+    # 1. Gráfico de Relatos (Barras verticais com somatória de todas as turmas)
     fig_relatos = go.Figure()
     
     if not data.empty:
-        turmas = data['Turma'].unique()
+        total_relatos_abertos = data[data['Tipo'] == 'Relatos Abertos']['Valor'].sum()
+        total_relatos_concluidos = data[data['Tipo'] == 'Relatos Concluídos']['Valor'].sum()
         
-        for turma in turmas:
-            turma_data = data[data['Turma'] == turma]
-            relatos_abertos = turma_data[turma_data['Tipo'] == 'Relatos Abertos']['Valor'].sum()
-            relatos_concluidos = turma_data[turma_data['Tipo'] == 'Relatos Concluídos']['Valor'].sum()
-            
-            fig_relatos.add_trace(go.Bar(
-                x=[turma],
-                y=[relatos_concluidos],
-                name='Concluídos',
-                marker_color=colors['positive']
-            ))
-            
-            fig_relatos.add_trace(go.Bar(
-                x=[turma],
-                y=[relatos_abertos],
-                name='Abertos',
-                marker_color=colors['warning']
-            ))
+        fig_relatos.add_trace(go.Bar(
+            x=['Relatos'],
+            y=[total_relatos_concluidos],
+            name='Concluídos',
+            marker_color=colors['positive'],
+            text=[total_relatos_concluidos],
+            textposition='auto'
+        ))
+        
+        fig_relatos.add_trace(go.Bar(
+            x=['Relatos'],
+            y=[total_relatos_abertos],
+            name='Abertos',
+            marker_color=colors['warning'],
+            text=[total_relatos_abertos],
+            textposition='auto'
+        ))
     
     fig_relatos.update_layout(
-        title_text='Relatos por Turma',
+        title_text='Relatos Totais',
         barmode='stack',
-        xaxis_title='Turma',
+        xaxis_title='',
         yaxis_title='Quantidade',
         **layout_settings
     )
     
-    # 2. Gráfico de Acidentes
+    # 2. Gráfico de Acidentes (Barras verticais com somatória de todas as turmas)
     fig_acidentes = go.Figure()
+    
+    total_acidentes_spt = kpis.get('acidentes_spt', 0)
+    total_acidentes_cpt = kpis.get('acidentes_cpt', 0)
+    
     fig_acidentes.add_trace(go.Bar(
-        x=['SPT', 'CPT'],
-        y=[kpis.get('acidentes_spt', 0), kpis.get('acidentes_cpt', 0)],
-        marker_color=[colors['warning'], colors['negative']],
-        width=0.6,
-        text=[kpis.get('acidentes_spt', 0), kpis.get('acidentes_cpt', 0)],
-        textposition='auto',
+        x=['Acidentes'],
+        y=[total_acidentes_spt],
+        name='SPT',
+        marker_color=colors['warning'],
+        text=[total_acidentes_spt],
+        textposition='auto'
+    ))
+    
+    fig_acidentes.add_trace(go.Bar(
+        x=['Acidentes'],
+        y=[total_acidentes_cpt],
+        name='CPT',
+        marker_color=colors['negative'],
+        text=[total_acidentes_cpt],
+        textposition='auto'
     ))
     
     fig_acidentes.update_layout(
-        title_text='Acidentes',
+        title_text='Acidentes Totais',
+        barmode='stack',
+        xaxis_title='',
+        yaxis_title='Quantidade',
         annotations=[{
             'text': f"Total: {kpis.get('total_acidentes', 0)}",
             'x': 0.5,
             'y': 0.9,
+            'xref': 'paper',
+            'yref': 'paper',
             'showarrow': False,
             'font': {'size': 12}
         }],
@@ -285,7 +301,7 @@ def generate_graphs(data):
             textposition='auto',
         ))
         
-        target = costs.get('meta', producao_data['Valor'].mean() * 1.1)
+        target = calculate_costs(data).get('meta', producao_data['Valor'].mean() * 1.1)
         fig_producao.add_trace(go.Scatter(
             x=producao_data['Turma'],
             y=[target] * len(producao_data),
@@ -400,33 +416,7 @@ def generate_graphs(data):
     )
     
     return (fig_relatos, fig_acidentes, fig_sucata, fig_retrabalho, fig_producao,
-            fig_horas_extras, fig_treinamentos, fig_faltas, fig_interrupcao, costs)
-
-def create_kpi_card(title, value, indicator=None, prefix="", suffix=""):
-    indicator_color = colors['white']
-    indicator_icon = ""
-    
-    if indicator == "up":
-        indicator_color = colors['positive']
-        indicator_icon = "↑"
-    elif indicator == "down":
-        indicator_color = colors['negative']
-        indicator_icon = "↓"
-        
-    return dbc.Card(
-        [
-            dbc.CardBody(
-                [
-                    html.H4(title, className="card-title"),
-                    html.Div([ 
-                        html.Span(f"{prefix}{value}{suffix}", className="kpi-value"),
-                        html.Span(indicator_icon, className="indicator", style={"color": indicator_color})
-                    ], className="kpi-container")
-                ]
-            )
-        ],
-        className="kpi-card"
-    )
+            fig_horas_extras, fig_treinamentos, fig_faltas, fig_interrupcao)
 
 def create_cost_card(title, value, icon_class, color_class):
     return html.Div([
@@ -474,15 +464,6 @@ header = dbc.Container([
             ], className="date-display")
         ], width=2)
     ], className="header-row"),
-    
-    dbc.Row([
-        dbc.Col(create_kpi_card("Relatos Concluídos", f"{calculate_kpis(initial_data).get('completion_rate', 0)}%", "up"), width=3),
-        dbc.Col(create_kpi_card("Acidentes Totais", calculate_kpis(initial_data).get('total_acidentes', 0), "down"), width=3),
-        dbc.Col(create_kpi_card("Produção Atual", calculate_kpis(initial_data).get('producao_atual', 0), 
-               "up" if calculate_kpis(initial_data).get('producao_trend', 0) > 0 else "down" if calculate_kpis(initial_data).get('producao_trend', 0) < 0 else None,
-               suffix=" ton"), width=3),
-        dbc.Col(create_kpi_card("Horas Extras", calculate_kpis(initial_data).get('horas_extras_total', 0), "down", suffix="h"), width=3),
-    ], className="kpi-row"),
     
     html.Hr(className="my-4")
 ], fluid=True, className="dashboard-header")
@@ -550,33 +531,7 @@ app.layout = dbc.Container([
                     dbc.Card([
                         dbc.CardBody([
                             create_cost_card("CUSTO MENSAL", calculate_costs(initial_data).get('custo_mensal', 0), "fa-money-bill-wave", colors['primary']),
-                            create_cost_card("META", calculate_costs(initial_data).get('meta', 0), "fa-bullseye", colors['positive']),
-                            html.Div([
-                                html.Div([
-                                    html.I(className="fas fa-weight fa-2x", style={"margin-right": "15px", "color": "#6c757d"}),
-                                    html.Div([
-                                        html.H5("CUSTO POR TON", style={
-                                            "margin-bottom": "0", 
-                                            "font-weight": "bold",
-                                            "color": "#6c757d",
-                                            "font-size": "14px",
-                                            "text-transform": "uppercase"
-                                        }),
-                                        html.H3(f"R$ {calculate_costs(initial_data).get('custo_por_ton', 0):,.2f}", style={
-                                            "margin-top": "5px", 
-                                            "font-weight": "bold",
-                                            "color": colors['text'],
-                                            "font-size": "24px"
-                                        })
-                                    ])
-                                ], style={
-                                    "display": "flex",
-                                    "align-items": "center",
-                                    "padding": "20px",
-                                    "background-color": "#f8f9fa",
-                                    "border-radius": "8px"
-                                })
-                            ], style={"margin-top": "10px"})
+                            create_cost_card("META", calculate_costs(initial_data).get('meta', 0), "fa-bullseye", colors['positive'])
                         ])
                     ], className="custo-card")
                 ])
@@ -653,7 +608,6 @@ app.layout = dbc.Container([
 def serve_form():
     return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'form.html')
 
-# Endpoint para adicionar dados do formulário
 @app.server.route('/api/add_data', methods=['POST'])
 def add_data():
     try:
@@ -726,7 +680,7 @@ def update_all_charts(n_intervals):
     df = pd.DataFrame(data)
     
     (fig_relatos, fig_acidentes, fig_sucata, fig_retrabalho, fig_producao,
-     fig_horas_extras, fig_treinamentos, fig_faltas, fig_interrupcao, costs) = generate_graphs(df)
+     fig_horas_extras, fig_treinamentos, fig_faltas, fig_interrupcao) = generate_graphs(df)
     
     title = f"GESTÃO LAMINAÇÃO A FRIO (Atualizado: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')})"
     
@@ -734,4 +688,4 @@ def update_all_charts(n_intervals):
             fig_horas_extras, fig_treinamentos, fig_faltas, fig_interrupcao, title)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,host='192.168.0.5')
